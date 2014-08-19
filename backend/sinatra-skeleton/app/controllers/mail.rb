@@ -2,6 +2,13 @@ require 'net/http'
 require 'nokogiri'
 require 'open-uri'
 
+
+before "*" do
+   headers 'Access-Control-Allow-Origin' => '*',
+           'Access-Control-Allow-Methods' => ['OPTIONS', 'GET', 'POST']
+end
+
+
 get '/users/:email_address/emails' do
 
   email = params[:email_address]
@@ -24,8 +31,8 @@ get '/users/:email_address/emails' do
   # p parsed_mail.code
 
   # p status
-
-  # user.messages.order(time_received: :desc).limit(200).to_json
+  content_type :json
+  user.messages.order(time_received: :desc).limit(200).to_json
 
    #returns the id, subject, from_email, and body of the email
 
