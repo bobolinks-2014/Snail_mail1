@@ -8,7 +8,7 @@ get '/users/:email_address/emails' do
   user = User.find_or_create_by(email: email)
   mail_url = "http://dbc-mail.herokuapp.com/api/#{email}/messages?api_token=c88985db0194c65db233ab492de685b8"
 
-  status = Mail.status(mail_url)
+   # Mail.status(mail_url) need to do something with this
 
   if user.messages.size == 0 # put this into a method... mail_objects(mail)
     parsed_mail = Mail.parse_mail(mail_url)
@@ -21,7 +21,9 @@ get '/users/:email_address/emails' do
     end
   end
 
-  p status
+  # p parsed_mail.code
+
+  # p status
 
   # user.messages.order(time_received: :desc).limit(200).to_json
 

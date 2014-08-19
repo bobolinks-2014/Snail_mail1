@@ -5,12 +5,14 @@ require 'open-uri'
 class Mail
 
   def self.status(mail_url)
-    uri = URI.parse(mail_url)
-    res = Net::HTTP.get_response(uri).code
+    # uri = URI.parse(mail_url)
+    @res = Net::HTTP.get_response(URI.parse(mail_url))
   end
 
   def self.parse_mail(mail_url)
     fetched_XML = Nokogiri::XML(open(mail_url))
+    # uri = URI.parse(mail_url)
+    # res = Net::HTTP.get_response(uri).code
 
     array_of_messages = []
 
