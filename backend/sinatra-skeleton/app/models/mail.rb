@@ -3,16 +3,22 @@ require 'net/http'
 require 'open-uri'
 
 class Mail
-
-  def self.status(mail_url)
-    # uri = URI.parse(mail_url)
-    @res = Net::HTTP.get_response(URI.parse(mail_url))
+  def initialize(mail_url, mail_count_url)
+    @mail_url = mail_url
+    @mail_count_url = mail_count_url
   end
 
-  def self.parse_mail(mail_url)
-    fetched_XML = Nokogiri::XML(open(mail_url))
-    # uri = URI.parse(mail_url)
-    # res = Net::HTTP.get_response(uri).code
+  def fire_request
+    uri = URI.parse(@mail_url)
+    @res = Net::HTTP.get_response(uri)
+  end
+
+  def request_status
+    @res.code
+  end
+
+  def parse_mail
+    fetched_XML = Nokogiri::XML(@res.body)
 
     array_of_messages = []
 
@@ -27,8 +33,8 @@ class Mail
     array_of_messages
   end
 
-  def self.new_mail?(mail_count_url)
-    fetched_count = Nokogiri::XML(open(mail_count_url))
+  def new_mail?
+    fetched_count = Nokogiri::XML(open(@mail_count_url))
     fetched_count.xpath("//count").text.to_i > 0
   end
 
