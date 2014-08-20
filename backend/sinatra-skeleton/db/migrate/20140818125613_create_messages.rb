@@ -6,6 +6,7 @@ class CreateMessages < ActiveRecord::Migration
       t.datetime :time_received
       t.string  :from
       t.string :subject
+      t.integer :folder_id
     end
   end
 end

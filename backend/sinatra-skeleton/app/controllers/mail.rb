@@ -10,57 +10,41 @@ end
 
 
 get '/users/:email_address/emails' do
+  user = User.find_or_create_by(email: params[:email_address])
+  user.messages.empty? ? last_id = 0 : last_id =  user.messages.last.id + 1
+  p last_id
+  mail = Mail.new("http://dbc-mail.herokuapp.com/api/#{params[:email_address]}/messages?api_token=c88985db0194c65db233ab492de685b8", "http://dbc-mail.herokuapp.com/api/#{params[:email_address]}/messages/count?last_id=#{last_id}&api_token=9f2c07f74b45aa8b3c5eb901db94190c")
 
-  email = params[:email_address]
-  user = User.find_or_create_by(email: email)
-  mail_url = "http://dbc-mail.herokuapp.com/api/#{email}/messages?api_token=c88985db0194c65db233ab492de685b8"
+  mail.fire_request
 
-   # Mail.status(mail_url) need to do something with this
-
-  if user.messages.size == 0 # put this into a method... mail_objects(mail)
-    parsed_mail = Mail.parse_mail(mail_url)
-    user.build_inbox(parsed_mail)
-  else
-    mail_count_url = "http://dbc-mail.herokuapp.com/api/#{email}/messages/count?last_id=#{user.messages.last.id}&api_token=9f2c07f74b45aa8b3c5eb901db94190c"
-    if Mail.new_mail?(mail_count_url)
-      parsed_mail = Mail.parse_mail(mail_url)
+  if mail.request_status == "200"
+    if mail.new_mail?
+      parsed_mail = mail.parse_mail
       user.build_inbox(parsed_mail)
+    else
+      "No new mail"
     end
+  else
+    "status error"
   end
 
-  # p parsed_mail.code
-
-  # p status
   content_type :json
   user.messages.order(time_received: :desc).limit(200).to_json
-
-   #returns the id, subject, from_email, and body of the email
-
-# Mail.new_mail?(Message.last.id)
-
-# uri = URI.parse(url)
-# p uri
-# p uri.host
-# p uri.port
-# p uri.path
-# p Net::HTTP.get_response(uri).code
-# result = Net::HTTP.start(uri.host, uri.port) { |http| http.get(uri.path) }
-# puts result.code
-# puts result.body
-#   status = Mail.status(url)
-#   mail = Mail.parse_mail(url) #returns the id, subject, from_email, and body of the email
-# # p status
-# # content_type :json
-# # mail.to_json
-# found_user = User.find_by(email: params[:email_address])
-#   mail.each do |message|
-#     # puts "*"*100
-#     # bob.messages.create(message)
-#     message = Message.create(message)
-#     message.update(user: found_user)
-#     # puts "*"*100
-#   end
-
-#   found_user.messages.order(time_received: :desc).limit(200).to_json
 end
+
+get '/users/:email_address/trash/:id' do
+  Message.find(params[:id]).destroy
+end
+
+get '/users/:email_address/folders' do
+  folders = Folder.all
+
+  content_type :json
+  folders.to_json
+end
+
+post 'users/:email_address/folder/new' do
+  p params
+end
+
 
