@@ -43,8 +43,12 @@ get '/users/:email_address/folders' do
   folders.to_json
 end
 
-post 'users/:email_address/folder/new' do
-  p params
+post '/users/:email_address/folder/new' do
+  folder = Folder.create(name: params[:name])
+  content_type :json
+  folder.to_json
 end
+
+
 
 
